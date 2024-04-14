@@ -1,0 +1,110 @@
+3.1 feladat (kész)
+
+"Írj programot, amelyik kiszámolja, hogy mi annak a valószínűsége, hogy 52 lapos francia kártyából 2 kártyát választva az egyik király, a másik nem király!"
+
+
+var király_nem_király = function () {
+  var szín1 = randomInteger(4) + 1;
+  var figura1 = randomInteger(13) + 1;
+  var szín2 = randomInteger(4) + 1;
+  var figura2 = randomInteger(13) + 1;
+  var húzás1 = [szín1,figura1];
+  var húzás2 = [szín2,figura2];
+  var király = categorical({ps: [4/52, 4/52, 4/52, 4/52], vs: [1, 2, 3, 4]});
+  condition(figura1 == király && figura2 !== király);
+  return [húzás1,húzás2];
+}
+  
+var eloszlás = Enumerate(király_nem_király);
+
+viz.table(eloszlás);
+
+
+3.2 feladat (kész)
+
+"Legyen az X Y és Z valószínűség változó olyan, ami az {0, 1, 2, 3} számok közül választ egyenletes valószínűséggel. Legyen W = X + Y + Z, mi az X változó eloszlása, ha tudjuk, hogy W = 7? (Írj programot!)"
+
+var model = function () {
+
+  var X = function () {
+    return categorical({ps: [1/4, 1/4, 1/4, 1/4], vs: [0, 1, 2, 3]});
+  };
+  
+  var Y = function () {
+    return categorical({ps: [1/4, 1/4, 1/4, 1/4], vs: [0, 1, 2, 3]});
+  };
+
+  var Z = function () {
+    return categorical({ps: [1/4, 1/4, 1/4, 1/4], vs: [0, 1, 2, 3]});
+  };
+
+  var W = function () {
+    return X() + Y() + Z();
+  };
+
+  var X_eloszlás = function () {
+    condition(W() == 7);
+    return {x: X()};
+  };
+
+  var eredmény = Enumerate(X_eloszlás);
+
+  return eredmény;
+};
+
+var eredmény = model();
+viz.auto(eredmény);
+
+
+3.3 feladat (kész)
+
+"Értsd meg a Monty Hall/vos Savant paradoxon programját!"
+
+elolvastam, megértettem (itt: https://hu.wikipedia.org/wiki/Monty_Hall-paradoxon)
+
+3.4 feladat (kész)
+
+"Van egy beépített emberünk a Monty Hall/vos Savant szituációban, aki 50% százalékban helyesen mutogatja el nekünk a színfalak mögül, hogy melyik ajtó mögött van az autó. Szót fogadunk neki, és azt az ajtót választjuk, amit ő javasol. Még mindig érdemes-e azután váltani, hogy Monty megmutatot egy kecskét? A választ támasszuk alá webppl programmal!"
+
+var Monty_Hall_téglával = function () {
+    var autó = categorical({ps:[1/3,1/3,1/3], vs:[1, 2, 3]})
+    var választás = categorical({ps:[1/3,1/3,1/3], vs:[1, 2, 3]})
+    var tégla = categorical({ps:[1/3,1/3,1/3], vs:[1, 2, 3]})
+    var tégla_helyes = flip(0.5)
+    var Monty = (autó == választás) 
+                ? ( (autó == 1) 
+                   ? categorical({ps:[1/2,1/2], vs:[2, 3]}) : 
+                   ( (autó == 2) ? categorical({ps:[1/2,1/2], vs:[1, 3]}) :
+                    categorical({ps:[1/2,1/2], vs:[1, 2]}) ) )
+                : ( (1 !== autó && 1 !== választás ) ? 1 :
+                   ( (2 !== autó && 2 !== választás ) ) ? 2 : 3 )
+    var tégla_tipp = ((autó == tégla) && tégla_helyes)
+    
+    var kecske_tipp = (autó !== választás) 
+                ? autó
+                : ( (választás == 1 && Monty == 2) ? 3 : 
+                   ( (választás == 1 && Monty == 3) ? 2 : 
+                   ( (választás == 2 && Monty == 1) ? 3 :
+                   ( (választás == 2 && Monty == 3) ? 1 :
+                   ( (választás == 3 && Monty == 1) ? 2 : 1 ) ) ) ) )
+
+    var tégla_tipp = (autó != választás)
+                    ? autó
+                : ( (választás == 1 && tégla_tipp == 2) ? 3 : 
+                   ( (választás == 1 && tégla_tipp == 3) ? 2 : 
+                   ( (választás == 2 && tégla_tipp == 1) ? 3 :
+                   ( (választás == 2 && tégla_tipp == 3) ? 1 :
+                   ( (választás == 3 && tégla_tipp == 1) ? 2 : 1 ) ) ) ) ) 
+    
+    var stratégia_maradás = (autó == kecske_tipp) ? 'nyer' : 'veszít'
+
+    var stratégia_váltás = (autó == tégla_tipp) ? 'nyer' : 'veszít'
+    
+    return  {
+             stratégia_maradás: stratégia_maradás, 
+             stratégia_váltás: stratégia_váltás } 
+}
+
+var eloszlás = Enumerate(Monty_Hall_téglával)
+
+viz.marginals(eloszlás)

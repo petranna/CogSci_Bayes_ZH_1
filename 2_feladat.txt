@@ -1,0 +1,49 @@
+2.1. feladat (kész)
+
+Lemma problem_1 : forall A B C : Prop, A /\ (B \/ C) -> (A /\ B) \/ (A /\ C).
+Proof.
+intros.
+destruct H as [H1 H2].
+(*esetszétválasztás*)
+elim H2.
+intros.
+left.
+split.
+auto.
+auto.
+intros.
+right.
+auto.
+Show Proof.
+Defined.
+
+2.2. feladat (kész)
+
+Lemma problem_2 : forall A B C : Prop, ((B -> A) /\ (C -> A)) -> ((B \/ C -> A)).
+intros.
+destruct H as [H1 H2].
+elim H0.
+intros.
+auto.
+apply H2.
+Show Proof.
+Defined.
+
+
+2.3. feladat (kész)
+
+Lemma problem_3 : forall A B : Prop, (A \/ ~A) -> ((A -> B) -> A) -> A.
+Proof.
+intros.
+destruct H.
+auto.
+apply H0.
+intros.
+contradiction.
+Show Proof.
+Defined.
+
+
+2.4. feladat (nem tudom megcsinálni)
+
+Lemma problem_4 : forall (U : Type) (A B : U -> Prop), (exists x, A x /\ B x) -> (exists x, A x) /\ (exists x, B x).

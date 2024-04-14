@@ -1,0 +1,52 @@
+4.1 feladat (félkész)
+
+"Francia kártyapakliból kiválogatjuk a figurásokat (bubi, dáma, király, ász). Ez 16 lap. Kihúzunk visszatevés nélkül belőlük két lapot. Az alábbi program azokat az eseteket sorolja fel, amikor teljesül az A = "az egyik lap nem kőr vagy a másik lap nem király" esemény. Ezt tekintsük úgy, mint egy olyan P(X,Y) joint eloszlást, ahol a lyukas helyekhez tartozó valószínűség nulla, a többihez egyenletes.
+
+a) Rajzold fel a P(X) = P( X = xi ) = ∑jP( X = xi , Y = yj ) marginális eloszlást (vigyázat! ez nem lesz ugyanaz, mint amit a "marginals" parancs ad vissza a webppl-ben!).
+
+>ezt nem tudom megcsinálni<
+
+b) Számoljuk ki a P( X = treff király vagy X = treff ász | Y = pikk dáma ) feltételes valószínűséget!" (kész)
+
+var kártya_treff = ['treff király', 'treff ász'];
+var kártya_pikk = ['pikk dáma'];
+
+var modelP = function() {
+var X = uniformDraw(kártya_treff);
+var Y = uniformDraw(kártya_pikk);
+
+return {'X' : X, 'Y' : Y}
+}
+
+var P = Infer({method: 'enumerate', model: modelP})
+
+viz.table(P)
+
+
+4.2 feladat (kész)
+
+"Hörcsögünk súlyának mérési adatai: 28 g, 31 g, 44 g, 29 g. Lexikonbeli adatok: átlagos súly: 32 g, szórás: 10 g. Mi lesz az adatokkal való frissítés után a hörcsög súlyának eloszlása?"
+
+var data = [{k: 28}, {k: 31}, {k: 44}, {k: 29}];
+
+var Model = function() {
+  
+  var m = gaussian(32,10)
+  
+  map(function(d){observe(Gaussian({mu: m, sigma: 1}),d.k)},data);
+  
+  var PriorPredictive = gaussian(32,1);
+  var PosteriorPredictive = gaussian(m,1);
+  
+  return { 
+          PriorPredictive: PriorPredictive, 
+          Posterior: m,
+          PosteriorPredictive: PosteriorPredictive
+         };
+}
+
+var opts = {method: 'SMC', particles: 1000, rejuvSteps: 5}
+
+var output_1 = Infer(opts, Model)
+
+viz.marginals(output_1)
